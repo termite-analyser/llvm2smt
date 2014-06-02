@@ -1,0 +1,37 @@
+OASISFormat: 0.4
+Name:        llvm2smt
+Version:     0.1
+Synopsis:    Transform llvm control flow graph into smt formulas
+Authors:     Gabriel Radanne
+License:     LGPL with Ocaml linking exception
+Plugins:     META (0.3), DevFiles (0.3)
+
+AlphaFeatures: compiled_setup_ml, ocamlbuild_more_args
+BuildTools: ocamlbuild
+
+
+Library llvm_smt
+  Path: src
+  InternalModules: Utils
+  Modules:
+    Llvm2smt, Llvm_graph, Smt_graph
+  BuildDepends: llvm, z3, z3overlay, ocamlgraph
+
+
+Document "api"
+  Title: API reference for Llvm_nts
+  Type: ocamlbuild (0.3)
+  Install: false
+  BuildTools: ocamldoc
+  XOCamlbuildPath: ./
+  XOCamlbuildLibraries: llvm_smt
+  XOCamlbuildExtraArgs: "-docflags '-colorize-code, -short-functors, -charset, utf-8'"
+
+
+Executable read_and_dot
+  Path: tests
+  Build$: flag(tests)
+  Install: false
+  MainIs: read_and_dot.ml
+  BuildDepends: llvm_smt, llvm.bitreader, llvm.scalar_opts
+  CompiledObject: best

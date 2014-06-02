@@ -1,0 +1,13 @@
+# ocamlbuild
+_build
+.depend
+*.native
+*.byte
+
+# oasis
+setup.data
+setup.log
+setup.exe
+
+# ocamldoc
+*.docdir

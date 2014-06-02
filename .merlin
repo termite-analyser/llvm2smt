@@ -1,0 +1,9 @@
+B _build
+B _build/src
+S src
+
+PKG llvm
+PKG z3
+PKG z3overlay
+PKG batteries
+PKG ocamlgraph
