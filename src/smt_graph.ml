@@ -6,7 +6,6 @@ module Make (ZZ3 : ZZ3_sigs.S) = struct
 
   type vertex_ = {
     id : int ;
-    block : Llvm.llbasicblock ;
     formulas : zbool t list ;
   }
 
@@ -30,7 +29,7 @@ module Make (ZZ3 : ZZ3_sigs.S) = struct
       let graph_attributes _ = []
       let default_vertex_attributes _ = []
 
-      let vertex_name { id ; block ; formulas } =
+      let vertex_name { id ; formulas } =
         let instrs =
         String.concat "\n" @@
         List.map Z3.Expr.to_string (formulas :> Z3.Expr.expr list)

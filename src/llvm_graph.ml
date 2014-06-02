@@ -1,7 +1,7 @@
 open Graph
 open Utils
 
-type vertex = {
+type vertex_ = {
   id : int ;
   block : Llvm.llbasicblock ;
   phi : Llvm.llvalue list ;
@@ -15,29 +15,30 @@ let vertex =
     { id = !r ; block ; phi ; instr }
 
 let llblock2vertex llb =
-    let aux (phi, instr) llv =
-      match Llvm.instr_opcode llv with
-        | Llvm.Opcode.PHI -> (llv :: phi, instr)
-        | _ -> (phi, llv :: instr)
-    in
-    let (phi, instr) = Llvm.fold_left_instrs aux ([],[]) llb in
-    vertex ~block:llb ~phi:(List.rev phi) ~instr:(List.rev instr)
+  let aux (phi, instr) llv =
+    match Llvm.instr_opcode llv with
+      | Llvm.Opcode.PHI -> (llv :: phi, instr)
+      | _ -> (phi, llv :: instr)
+  in
+  let (phi, instr) = Llvm.fold_left_instrs aux ([],[]) llb in
+  vertex ~block:llb ~phi:(List.rev phi) ~instr:(List.rev instr)
 
 
-module V = struct
-  type t = vertex
+module V_ = struct
+  type t = vertex_
   let compare = compare
   let hash = Hashtbl.hash
   let equal = (=)
 end
 
-module E = struct
+module E_ = struct
   type t = Llvm.lluse option
   let compare = compare
   let default = None
 end
 
-module Llg = Persistent.Digraph.ConcreteBidirectionalLabeled (V) (E)
+module Llg = Persistent.Digraph.ConcreteBidirectionalLabeled (V_) (E_)
+include Llg
 
 (** Create the graph representing an llvm function.
 
@@ -49,18 +50,18 @@ let of_llfunction llfun =
   let f_add_vertex g llb =
     let v = llblock2vertex llb in
     Hashtbl.add h llb v ;
-    Llg.add_vertex g v
+    add_vertex g v
   in
-  let g = Llvm.fold_left_blocks f_add_vertex Llg.empty llfun in
+  let g = Llvm.fold_left_blocks f_add_vertex empty llfun in
   let f_add_edges llb g =
     let llv = Llvm.value_of_block llb.block in
     let aux g llu =
       let llb' = Llvm.instr_parent @@ Llvm.user llu in
-      Llg.add_edge_e g (Hashtbl.find h llb', Some llu, llb)
+      add_edge_e g (Hashtbl.find h llb', Some llu, llb)
     in
     Llvm.fold_left_uses aux g llv
   in
-  Hashtbl.find h, Llg.fold_vertex f_add_edges g g
+  Hashtbl.find h, fold_vertex f_add_edges g g
 
 
 (** Graphviz is cool. *)
@@ -83,6 +84,8 @@ module Dot = Graphviz.Dot (struct
 
   end)
 
+
+module Cutset = Cutset.Make (Llg)
 
 (** Split a node in two smaller nodes:
     One with all the phi, the other will all the instructions.
@@ -114,11 +117,12 @@ let break_node g ({ block ; phi ; instr } as node) =
 
 
 
-module Llcutset = Cutset.Make (Llg)
+exception Not_reducible of t
 
 (** Retrieve the minimal vertex cut set of a graph,
     and apply {!break_node} on each of these vertexes.
 *)
 let break_scc g start =
-  let l = Option.get @@ Llcutset.min_cutset g start in
-  List.fold_left break_node g l
+  match Cutset.min_cutset g start with
+    | None -> raise (Not_reducible g)
+    | Some l -> List.fold_left break_node g l

@@ -1,21 +1,16 @@
 open Utils
 open ZZ3
 open Llvm
-open Llvm_graph
 
-exception Not_an_instruction
+module Llg = Llvm_graph
 
 exception Not_implemented of llvalue
-
-exception Wrong_type of llvalue
 
 
 module H = Hashtbl.Make (Llg.V)
 
 
-module Init (ZZ3 : ZZ3_sigs.S) = struct
-
-  module SMTg = Smt_graph.Make (ZZ3)
+module Init (ZZ3 : ZZ3_sigs.S) (SMTg : module type of Smt_graph.Make(ZZ3))= struct
 
   open ZZ3
 
@@ -31,7 +26,7 @@ module Init (ZZ3 : ZZ3_sigs.S) = struct
       incr counter ;
       Printf.sprintf "%s%s_%i" s prime !counter
 
-  let is_primed_block { phi ; instr } = phi <> [] && instr = []
+  let is_primed_block {Llg. phi ; instr } = phi <> [] && instr = []
 
   let env : (_, Z3.Expr.expr) Hashtbl.t = Hashtbl.create 512
 
@@ -61,17 +56,15 @@ module Init (ZZ3 : ZZ3_sigs.S) = struct
   let getBlockVar llb =
     getVar ~name:"b" Bool @@ value_of_block llb
 
-  let getEdgeVar =
-    let edges = Hashtbl.create 512 in
+  let edges = Hashtbl.create 512
 
-    fun ~src ~dst -> begin
-        try Hashtbl.find edges (src,dst)
-        with Not_found ->
-          let name = make_name "e" in
-          let e = T.symbol @@ Symbol.declare Bool name in
-          Hashtbl.add edges (src,dst) e ;
-          e
-      end
+  let getEdgeVar ~src ~dst =
+    try Hashtbl.find edges (src,dst)
+    with Not_found ->
+      let name = make_name "e" in
+      let e = T.symbol @@ Symbol.declare Bool name in
+      Hashtbl.add edges (src,dst) e ;
+      e
 
   (** Transform a value into an expression. Need a type annotation. *)
   let getValueExpr (type a) (type b) (typ : (a,b) typ) llv : b t =
@@ -256,21 +249,21 @@ module Init (ZZ3 : ZZ3_sigs.S) = struct
 
     Llg.iter_vertex
       (fun llnode ->
-         ignore @@ getBlockVar llnode.block
+         ignore @@ getBlockVar llnode.Llg.block
       )
       llg ;
 
     Llg.iter_edges
       (fun src dest ->
-         ignore @@ getEdgeVar ~src:src.block ~dst:dest.block
+         ignore @@ getEdgeVar ~src:src.Llg.block ~dst:dest.Llg.block
       )
       llg ;
 
     (* conversion function *)
-    let llnode2smtnode ({Llvm_graph. id ; block ; phi ; instr } as node) =
+    let llnode2smtnode ({Llg. id ; block ; phi ; instr } as node) =
       let in_formula =
         T.or_ @@
-        List.map (fun src -> getEdgeVar ~src:src.block ~dst:block) @@
+        List.map (fun src -> getEdgeVar ~src:src.Llg.block ~dst:block) @@
         Llg.pred llg node
       in
       let primed = is_primed_block node in
@@ -278,7 +271,7 @@ module Init (ZZ3 : ZZ3_sigs.S) = struct
         [in_formula] @
           List.map (phi2smt ~primed) phi @
           concat_optlist @@ List.map instr2smt instr in
-      {SMTg. id ; block ; formulas }
+      {SMTg. id ; formulas }
     in
     let addnodes llnode g =
       let smtnode = llnode2smtnode llnode in
