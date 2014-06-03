@@ -13,7 +13,7 @@ module Make (ZZ3 : ZZ3_sigs.S) : sig
 
   type vertex_ = {
     id : int ;
-    formulas : ZZ3.zbool ZZ3.t list ;
+    formulas : ZZ3.zbool ZZ3.term list ;
   }
 
   include Graph.Sig.P
@@ -34,6 +34,6 @@ module Make (ZZ3 : ZZ3_sigs.S) : sig
   (** {2 Transformation to SMT formula} *)
 
   (** Gather all the formulas of the graph in one big smt formula. *)
-  val to_smt : t -> [> ZZ3.zbool ] ZZ3.t
+  val to_smt : t -> [> ZZ3.zbool ] ZZ3.term
 
 end

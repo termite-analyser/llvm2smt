@@ -6,7 +6,7 @@ module Make (ZZ3 : ZZ3_sigs.S) = struct
 
   type vertex_ = {
     id : int ;
-    formulas : zbool t list ;
+    formulas : zbool term list ;
   }
 
   module SMTg = Persistent.Digraph.ConcreteBidirectional

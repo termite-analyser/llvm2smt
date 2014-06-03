@@ -18,7 +18,7 @@ module Init
     *)
     val env : (Llvm.llvalue * bool option, Z3.Expr.expr) Hashtbl.t
 
-    (** Transform and Llvm graph into a formula graph, feeling {! env} on the way. *)
+    (** Transform an Llvm graph into a formula graph, filling {! env} on the way. *)
     val llvm2smt : Llvm_graph.t -> SMTg.t
 
   end

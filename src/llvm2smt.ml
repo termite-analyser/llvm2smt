@@ -30,13 +30,13 @@ module Init (ZZ3 : ZZ3_sigs.S) (SMTg : module type of Smt_graph.Make(ZZ3))= stru
 
   let env : (_, Z3.Expr.expr) Hashtbl.t = Hashtbl.create 512
 
-  let getVar : type a b . ?name:_ -> ?primed:_ -> (a,b) typ -> llvalue -> b t =
+  let getVar : type a b . ?name:_ -> ?primed:_ -> (a,b) typ -> llvalue -> b term =
     fun ?(name="") ?primed typ llv ->
       try T.symbol @@ Symbol.trustme typ (Hashtbl.find env (llv,primed))
       with Not_found ->
         let name = make_name ?primed @@ (name ^ value_name llv) in
         let ty = type_of llv in
-        let expr : b t = match typ, classify_type ty with
+        let expr : b term = match typ, classify_type ty with
           | Real, (TypeKind.Float | TypeKind.Double) ->
               T.symbol @@ Symbol.declare Real name
           | Bool, TypeKind.Integer when integer_bitwidth ty = 1 ->
@@ -50,7 +50,7 @@ module Init (ZZ3 : ZZ3_sigs.S) (SMTg : module type of Smt_graph.Make(ZZ3))= stru
           | _ -> failwith @@ string_of_llvalue llv
         in
 
-        Hashtbl.add env (llv,primed) (expr : b t :> Z3.Expr.expr) ;
+        Hashtbl.add env (llv,primed) (expr : b term :> Z3.Expr.expr) ;
         expr
 
   let getBlockVar llb =
@@ -67,7 +67,7 @@ module Init (ZZ3 : ZZ3_sigs.S) (SMTg : module type of Smt_graph.Make(ZZ3))= stru
       e
 
   (** Transform a value into an expression. Need a type annotation. *)
-  let getValueExpr (type a) (type b) (typ : (a,b) typ) llv : b t =
+  let getValueExpr (type a) (type b) (typ : (a,b) typ) llv : b term =
     let open ValueKind in
     match typ, classify_value llv with
       (* Easy constants *)
