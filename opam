@@ -1,0 +1,19 @@
+opam-version: "1"
+maintainer: "gabriel.radanne@imag.fr"
+version: "dev"
+build: [
+  ["./configure"
+      "--prefix" prefix]
+  [make]
+  [make "install"]
+]
+remove: [
+  ["ocamlfind" "remove" "llvm2smt"]
+]
+depends: [
+  "ocamlfind"
+  "llvm"
+  "z3"
+  ## OASIS is not required in released version
+  "oasis" {>= "0.4.4"}
+]

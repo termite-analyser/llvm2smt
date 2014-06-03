@@ -10,7 +10,7 @@ AlphaFeatures: compiled_setup_ml, ocamlbuild_more_args
 BuildTools: ocamlbuild
 
 
-Library llvm_smt
+Library llvm2smt
   Path: src
   InternalModules: Utils
   Modules:
