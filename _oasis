@@ -24,7 +24,7 @@ Document "api"
   Install: false
   BuildTools: ocamldoc
   XOCamlbuildPath: ./
-  XOCamlbuildLibraries: llvm_smt
+  XOCamlbuildLibraries: llvm2smt
   XOCamlbuildExtraArgs: "-docflags '-colorize-code, -short-functors, -charset, utf-8'"
 
 
@@ -33,5 +33,5 @@ Executable read_and_dot
   Build$: flag(tests)
   Install: false
   MainIs: read_and_dot.ml
-  BuildDepends: llvm_smt, llvm.bitreader, llvm.scalar_opts
+  BuildDepends: llvm2smt, llvm.bitreader, llvm.scalar_opts
   CompiledObject: best
