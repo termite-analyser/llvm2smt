@@ -39,3 +39,6 @@ let () =
   let chout = open_out Sys.argv.(4) in
   SMTg.Dot.output_graph chout smtg ;
   close_out chout ;
+
+  let smt = (SMTg.to_smt smtg : [> ZZ3.zbool ] ZZ3.term :> Z3.Expr.expr) in
+  print_endline @@ Z3.Expr.to_string smt ;

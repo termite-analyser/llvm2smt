@@ -262,9 +262,10 @@ module Init (ZZ3 : ZZ3_sigs.S) (SMTg : module type of Smt_graph.Make(ZZ3))= stru
     (* conversion function *)
     let llnode2smtnode ({Llg. id ; block ; phi ; instr } as node) =
       let in_formula =
-        T.or_ @@
-        List.map (fun src -> getEdgeVar ~src:src.Llg.block ~dst:block) @@
-        Llg.pred llg node
+        let in_ =
+          List.map (fun src -> getEdgeVar ~src:src.Llg.block ~dst:block)
+          @@ Llg.pred llg node
+        in match in_ with [] -> T.true_ | l -> T.or_ l
       in
       let primed = is_primed_block node in
       let formulas =
