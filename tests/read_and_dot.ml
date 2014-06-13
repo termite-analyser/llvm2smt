@@ -30,7 +30,7 @@ let () =
   let llg' = break_scc llg (llb2node llb1) in
 
   let chout = open_out Sys.argv.(3) in
-  Dot.output_graph chout llg' ;
+  Dot.output_graph chout (snd llg') ;
   close_out chout ;
 
 

@@ -43,6 +43,8 @@ exception Not_reducible of t
     - A phi node which contains only the phis and receives the input edges.
     - An instruction node which contains only the instruction and emit the output edges.
 
+    Also returns the list of broken basicblocks.
+
     A graph must be reducible for the algorithm to apply (which should be the case for all llvm's graphs) and the function will raise {! Not_reducible} otherwise.
 *)
-val break_scc : t -> vertex -> t
+val break_scc : t -> vertex -> Llvm.llbasicblock list * t

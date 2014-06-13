@@ -125,4 +125,6 @@ exception Not_reducible of t
 let break_scc g start =
   match Cutset.min_cutset g start with
     | None -> raise (Not_reducible g)
-    | Some l -> List.fold_left break_node g l
+    | Some l ->
+        let control_points = List.map (fun x -> x.block) l in
+        control_points, List.fold_left break_node g l

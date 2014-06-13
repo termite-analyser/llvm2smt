@@ -31,10 +31,10 @@ module Init (ZZ3 : ZZ3_sigs.S) (SMTg : module type of Smt_graph.Make(ZZ3))= stru
   let env : (_, Z3.Expr.expr) Hashtbl.t = Hashtbl.create 512
 
   let getVar : type a b . ?name:_ -> ?primed:_ -> (a,b) typ -> llvalue -> b term =
-    fun ?(name="") ?primed typ llv ->
+    fun ?(name="") ?(primed=false) typ llv ->
       try T.symbol @@ Symbol.trustme typ (Hashtbl.find env (llv,primed))
       with Not_found ->
-        let name = make_name ?primed @@ (name ^ value_name llv) in
+        let name = make_name ~primed @@ (name ^ value_name llv) in
         let ty = type_of llv in
         let expr : b term = match typ, classify_type ty with
           | Real, (TypeKind.Float | TypeKind.Double) ->
@@ -171,13 +171,15 @@ module Init (ZZ3 : ZZ3_sigs.S) (SMTg : module type of Smt_graph.Make(ZZ3))= stru
           else begin
             let cond = getVar Bool @@ operand llv 0 in
 
-            let succ_block1 = block_of_value @@ operand llv 1 in
+            (* USE OF OPERAND 2 AND OPERAND 1 ARE NOT A TYPO.
+               It's reverted in llvm's representation. *)
+            let succ_block1 = block_of_value @@ operand llv 2 in
             let edge1 = getEdgeVar ~src:current_block ~dst:succ_block1 in
 
-            let succ_block2 = block_of_value @@ operand llv 2 in
+            let succ_block2 = block_of_value @@ operand llv 1 in
             let edge2 = getEdgeVar ~src:current_block ~dst:succ_block2 in
 
-            Some T.((cond && (e_curr = edge1))  ||  ((not cond && (e_curr = edge2))))
+            Some T.(ite cond (e_curr = edge1) (e_curr = edge2))
           end
       | Invoke
       | ZExt
@@ -242,7 +244,7 @@ module Init (ZZ3 : ZZ3_sigs.S) (SMTg : module type of Smt_graph.Make(ZZ3))= stru
           )
 
 
-  let llvm2smt llg =
+  let llvm2smt (control_points, llg) =
 
     (* map node from llg to smtg *)
     let vertices = H.create 128 in
@@ -265,7 +267,10 @@ module Init (ZZ3 : ZZ3_sigs.S) (SMTg : module type of Smt_graph.Make(ZZ3))= stru
         let in_ =
           List.map (fun src -> getEdgeVar ~src:src.Llg.block ~dst:block)
           @@ Llg.pred llg node
-        in match in_ with [] -> T.true_ | l -> T.or_ l
+        in match in_ with
+          | [] when (List.mem block control_points) -> T.true_
+          | [] -> T.(false_ = getBlockVar block)
+          | l -> T.(or_ l = getBlockVar block)
       in
       let primed = is_primed_block node in
       let formulas =

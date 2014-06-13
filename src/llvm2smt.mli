@@ -16,9 +16,9 @@ module Init
     (** Environment mapping llvm values (primed, or not) to smt values.
         A phi variable is primed if it's used from a split node.
     *)
-    val env : (Llvm.llvalue * bool option, Z3.Expr.expr) Hashtbl.t
+    val env : (Llvm.llvalue * bool, Z3.Expr.expr) Hashtbl.t
 
     (** Transform an Llvm graph into a formula graph, filling {! env} on the way. *)
-    val llvm2smt : Llvm_graph.t -> SMTg.t
+    val llvm2smt : Llvm.llbasicblock list * Llvm_graph.t -> SMTg.t
 
   end
