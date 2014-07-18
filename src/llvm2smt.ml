@@ -96,8 +96,8 @@ module Init (ZZ3 : ZZ3_sigs.S) (SMTg : module type of Smt_graph.Make(ZZ3))= stru
            | ConstantVector)
         -> raise @@ Not_implemented llv
 
-      | _, UndefValue
-        -> raise @@ Not_implemented llv
+      | typ, UndefValue
+        -> getVar typ llv
 
       | typ , ( Argument | Instruction _ )
         -> getVar typ llv
