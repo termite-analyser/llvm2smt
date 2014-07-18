@@ -8,6 +8,9 @@
     ]}
 *)
 
+exception Not_implemented of Llvm.llvalue
+val sprint_exn : Llvm.llvalue -> string
+
 module Init
     (ZZ3 : ZZ3_sigs.S)
     (SMTg : module type of Smt_graph.Make(ZZ3))

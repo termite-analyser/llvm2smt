@@ -5,6 +5,13 @@ open Llvm
 module Llg = Llvm_graph
 
 exception Not_implemented of llvalue
+let sprint_exn llv =
+  Printf.sprintf "Llvm2smt, Instruction not implemented: %s"
+    (string_of_llvalue llv)
+let () =
+  Printexc.register_printer (function
+    | Not_implemented llv -> Some (sprint_exn llv)
+    | _ -> None)
 
 
 module H = Hashtbl.Make (Llg.V)
