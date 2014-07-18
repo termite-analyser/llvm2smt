@@ -27,14 +27,14 @@ let () =
 
 
   let Before llb1 = block_begin llf in
-  let llg' = break_scc llg (llb2node llb1) in
+  let (points, llg') = break_scc llg (llb2node llb1) in
 
   let chout = open_out Sys.argv.(3) in
-  Dot.output_graph chout (snd llg') ;
+  Dot.output_graph chout llg' ;
   close_out chout ;
 
 
-  let smtg = llvm2smt llg' in
+  let smtg = llvm2smt points llf llg' in
 
   let chout = open_out Sys.argv.(4) in
   SMTg.Dot.output_graph chout smtg ;

@@ -125,6 +125,18 @@ module Init (ZZ3 : ZZ3_sigs.S) (SMTg : module type of Smt_graph.Make(ZZ3))= stru
       | Label -> Ex Bool
       | _ -> Ex Real
 
+  (* Function parameters need a slightly special care :
+     they are the same along any path in the cfg, so we need the
+     same variable for primed and not primed.
+  *)
+  let register_param llp =
+    let (Ex typ) = getTyp llp in
+    let name = make_name (value_name llp) in
+    let expr = T.symbol @@ Symbol.declare typ name in
+    Hashtbl.add env (llp,true) (expr :> Z3.Expr.expr) ;
+    Hashtbl.add env (llp,false) (expr :> Z3.Expr.expr) ;
+    ()
+
   let binop instr typ op =
     let e_instr = getValueExpr typ instr in
     let operand0 = getValueExpr typ @@ operand instr 0 in
@@ -251,10 +263,12 @@ module Init (ZZ3 : ZZ3_sigs.S) (SMTg : module type of Smt_graph.Make(ZZ3))= stru
           )
 
 
-  let llvm2smt (control_points, llg) =
+  let llvm2smt control_points llf llg =
 
     (* map node from llg to smtg *)
     let vertices = H.create 128 in
+
+    iter_params register_param llf ;
 
     Llg.iter_vertex
       (fun llnode ->
