@@ -36,13 +36,18 @@ end
 
 (** {2 Cycle breaking} *)
 
+(** Get the vertices associated to some basicblocks. *)
+val basicblocks_to_vertices : t -> Llvm.llbasicblock list -> vertex list
+
+(** Break the node of a graph in two parts :
+    - A phi node which contains only the phis and receives the input edges.
+    - An instruction node which contains only the instruction and emit the output edges.
+*)
+val break_list : t -> vertex list -> t
+
 exception Not_reducible of t
 
 (** Break all the cycle in a graph, effectively returning a DAG.
-    In order to break the cycles, some nodes are broken in two parts :
-    - A phi node which contains only the phis and receives the input edges.
-    - An instruction node which contains only the instruction and emit the output edges.
-
     Also returns the list of broken basicblocks.
 
     A graph must be reducible for the algorithm to apply (which should be the case for all llvm's graphs) and the function will raise {! Not_reducible} otherwise.

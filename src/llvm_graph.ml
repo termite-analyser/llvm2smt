@@ -116,6 +116,18 @@ let break_node g ({ block ; phi ; instr } as node) =
   |> flip (List.fold_left (fun g (_,l,dst) -> Llg.add_edge_e g (node_instr,l,dst))) out_e
 
 
+let basicblocks_to_vertices g control_points =
+  let h = Hashtbl.create 16 in
+  Llg.iter_vertex (fun v -> Hashtbl.add h v.block v) g ;
+  let l =
+    try List.map (Hashtbl.find h) control_points
+    with Not_found -> raise (Invalid_argument "Break_list: No such basicblock in the graph")
+  in
+  l
+
+let break_list g l =
+  List.fold_left break_node g l
+
 
 exception Not_reducible of t
 
@@ -127,4 +139,4 @@ let break_scc g start =
     | None -> raise (Not_reducible g)
     | Some l ->
         let control_points = List.map (fun x -> x.block) l in
-        control_points, List.fold_left break_node g l
+        control_points, break_list g l
