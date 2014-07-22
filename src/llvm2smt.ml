@@ -21,9 +21,14 @@ module Init (ZZ3 : ZZ3_sigs.S) (SMTg : module type of Smt_graph.Make(ZZ3))= stru
 
   open ZZ3
 
+  (** Existential type used to work around some type issues with SMT's gadt interface. *)
+  (* Don't use if you can. *)
   type ex = Ex : (_,[< zany] as 'a) typ -> ex
 
-
+  (** Create a name of the form "$x[_primed]_$i".
+      - $x the original name of variable.
+      - $i a unique number.
+  *)
   let make_name =
     let counter = ref 0 in
     fun ?(primed=false) s ->
@@ -33,7 +38,11 @@ module Init (ZZ3 : ZZ3_sigs.S) (SMTg : module type of Smt_graph.Make(ZZ3))= stru
       incr counter ;
       Printf.sprintf "%s%s_%i" s prime !counter
 
+  (** true iff the phi variable inside this block should be primed. *)
   let is_primed_block {Llg. phi ; instr } = phi <> [] && instr = []
+
+
+  (** Variable access and creation. *)
 
   let env : (_, Z3.Expr.expr) Hashtbl.t = Hashtbl.create 512
 
@@ -60,9 +69,12 @@ module Init (ZZ3 : ZZ3_sigs.S) (SMTg : module type of Smt_graph.Make(ZZ3))= stru
         Hashtbl.add env (llv,primed) (expr : b term :> Z3.Expr.expr) ;
         expr
 
-  let getBlockVar llb =
-    getVar ~name:"b" Bool @@ value_of_block llb
+  (** A block is a normal variable, starting by "b" and of type Bool. *)
+  let getBlockVar ?(primed = false) llb =
+    getVar ~primed ~name:"b" Bool @@ value_of_block llb
 
+
+  (** Edges variables, starting by "e" and of type Bool. *)
   let edges = Hashtbl.create 512
 
   let getEdgeVar ~src ~dst =
@@ -125,6 +137,10 @@ module Init (ZZ3 : ZZ3_sigs.S) (SMTg : module type of Smt_graph.Make(ZZ3))= stru
       | Label -> Ex Bool
       | _ -> Ex Real
 
+
+
+  (** SMT variable registration. *)
+
   (* Function parameters need a slightly special care :
      they are the same along any path in the cfg, so we need the
      same variable for primed and not primed.
@@ -136,6 +152,17 @@ module Init (ZZ3 : ZZ3_sigs.S) (SMTg : module type of Smt_graph.Make(ZZ3))= stru
     Hashtbl.add env (llp,true) (expr :> Z3.Expr.expr) ;
     Hashtbl.add env (llp,false) (expr :> Z3.Expr.expr) ;
     ()
+
+  (* If a block is a parameter, we need to create a primed boolean too
+     This primed boolean is used to fix paths in the multi-pc version.
+  *)
+  let register_node llnode =
+    if is_primed_block llnode
+    then ignore @@ getBlockVar ~primed:true llnode.Llg.block
+    else ignore @@ getBlockVar ~primed:false llnode.Llg.block
+
+
+  (** Instruction translation. *)
 
   let binop instr typ op =
     let e_instr = getValueExpr typ instr in
@@ -263,18 +290,14 @@ module Init (ZZ3 : ZZ3_sigs.S) (SMTg : module type of Smt_graph.Make(ZZ3))= stru
           )
 
 
-  let llvm2smt control_points llf llg =
+  let llvm2smt llf llg =
 
     (* map node from llg to smtg *)
     let vertices = H.create 128 in
 
     iter_params register_param llf ;
 
-    Llg.iter_vertex
-      (fun llnode ->
-         ignore @@ getBlockVar llnode.Llg.block
-      )
-      llg ;
+    Llg.iter_vertex register_node llg ;
 
     Llg.iter_edges
       (fun src dest ->
@@ -284,18 +307,17 @@ module Init (ZZ3 : ZZ3_sigs.S) (SMTg : module type of Smt_graph.Make(ZZ3))= stru
 
     (* conversion function *)
     let llnode2smtnode ({Llg. id ; block ; phi ; instr } as node) =
+      let primed = is_primed_block node in
       let in_formula =
         let in_ =
           List.map (fun src -> getEdgeVar ~src:src.Llg.block ~dst:block)
           @@ Llg.pred llg node
         in match in_ with
-          | [] when (List.mem block control_points) -> T.true_
-          | [] -> T.(false_ = getBlockVar block)
-          | l -> T.(or_ l = getBlockVar block)
+          | [] -> []
+          | l -> [T.(or_ l = getBlockVar ~primed block)]
       in
-      let primed = is_primed_block node in
       let formulas =
-        [in_formula] @
+        in_formula @
           List.map (phi2smt ~primed) phi @
           concat_optlist @@ List.map instr2smt instr in
       {SMTg. id ; formulas }

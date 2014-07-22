@@ -22,6 +22,6 @@ module Init
     val env : (Llvm.llvalue * bool, Z3.Expr.expr) Hashtbl.t
 
     (** Transform an Llvm graph into a formula graph, filling {! env} on the way. *)
-    val llvm2smt : Llvm.llbasicblock list -> Llvm.llvalue -> Llvm_graph.t -> SMTg.t
+    val llvm2smt : Llvm.llvalue -> Llvm_graph.t -> SMTg.t
 
   end
