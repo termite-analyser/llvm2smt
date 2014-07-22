@@ -45,6 +45,11 @@ val basicblocks_to_vertices : t -> Llvm.llbasicblock list -> vertex list
 *)
 val break_list : t -> vertex list -> t
 
+
+(* This code use a custom version of ocamlgraph with Shamir's algorithm.
+   See https://github.com/Drup/ocamlgraph/blob/cutset/src/cutset.mli
+*)
+(*
 exception Not_reducible of t
 
 (** Break all the cycle in a graph, effectively returning a DAG.
@@ -53,3 +58,4 @@ exception Not_reducible of t
     A graph must be reducible for the algorithm to apply (which should be the case for all llvm's graphs) and the function will raise {! Not_reducible} otherwise.
 *)
 val break_scc : t -> vertex -> Llvm.llbasicblock list * t
+*)

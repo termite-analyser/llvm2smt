@@ -128,7 +128,7 @@ let basicblocks_to_vertices g control_points =
 let break_list g l =
   List.fold_left break_node g l
 
-
+(*
 exception Not_reducible of t
 
 (** Retrieve the minimal vertex cut set of a graph,
@@ -140,3 +140,4 @@ let break_scc g start =
     | Some l ->
         let control_points = List.map (fun x -> x.block) l in
         control_points, break_list g l
+*)
