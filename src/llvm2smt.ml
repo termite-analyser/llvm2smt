@@ -13,6 +13,16 @@ let () =
     | Not_implemented llv -> Some (sprint_exn llv)
     | _ -> None)
 
+exception Variable_not_found of bool * llvalue
+let sprint_exn_var (primed, llv) =
+  Printf.sprintf "Could not find the value %s with primed: %B\n%!"
+    (value_name llv) primed
+
+exception Block_not_found of bool * llbasicblock
+let sprint_exn_block (primed, llb) =
+  Printf.sprintf "Could not find the following block with primed: %B.\n%s%!"
+    primed (value_name @@ value_of_block llb)
+
 
 module H = Hashtbl.Make (Llg.V)
 
@@ -45,6 +55,26 @@ module Init (ZZ3 : ZZ3_sigs.S) (SMTg : module type of Smt_graph.Make(ZZ3))= stru
   (** Variable access and creation. *)
 
   let env : (_, Z3.Expr.expr) Hashtbl.t = Hashtbl.create 512
+
+  (** Some access only function, to be exposed in the interface *)
+
+
+  let get_var primed llv =
+    try
+      let e = Hashtbl.find env (llv,primed) in
+      ZZ3.(T.symbol (Symbol.trustme Num e))
+    with Not_found -> raise @@ Variable_not_found (primed, llv)
+
+
+  let get_block primed llb =
+    try
+      let e = Hashtbl.find env (value_of_block llb,primed) in
+      ZZ3.(T.symbol (Symbol.trustme Bool e))
+    with Not_found -> raise @@ Block_not_found (primed, llb)
+
+
+
+  (** Access function, that create the variable if undefined. *)
 
   let getVar : type a b . ?name:_ -> ?primed:_ -> (a,b) typ -> llvalue -> b term =
     fun ?(name="") ?(primed=false) typ llv ->
@@ -290,7 +320,7 @@ module Init (ZZ3 : ZZ3_sigs.S) (SMTg : module type of Smt_graph.Make(ZZ3))= stru
           )
 
 
-  let llvm2smt llf llg =
+  let llvm2smt llf cpoints llg =
 
     (* map node from llg to smtg *)
     let vertices = H.create 128 in
@@ -313,7 +343,8 @@ module Init (ZZ3 : ZZ3_sigs.S) (SMTg : module type of Smt_graph.Make(ZZ3))= stru
           List.map (fun src -> getEdgeVar ~src:src.Llg.block ~dst:block)
           @@ Llg.pred llg node
         in match in_ with
-          | [] -> []
+          | [] when List.mem block cpoints -> []
+          | [] -> [T.not @@ getBlockVar ~primed block]
           | l -> [T.(or_ l = getBlockVar ~primed block)]
       in
       let formulas =
