@@ -25,6 +25,17 @@ include Graph.Sig.P
 val of_llfunction : Llvm.llvalue -> (Llvm.llbasicblock -> vertex) * t
 
 
+(** {2 Misc functions} *)
+
+(** Return true iff a instruction is a terminator. *)
+val is_terminator : Llvm.llvalue -> bool
+
+(** Return true iff a block has a successor. *)
+val has_successor : Llvm.llbasicblock -> bool
+
+(** Return the list of predecessors (and the associated user) of a block. *)
+val predecessors : Llvm.llbasicblock -> (Llvm.llbasicblock * Llvm.lluse) list
+
 (** {2 Dot export} *)
 
 (** Pretty print to dot graphviz format.*)
