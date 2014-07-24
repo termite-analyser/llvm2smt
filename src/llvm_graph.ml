@@ -114,7 +114,6 @@ module Dot = Graphviz.Dot (struct
   end)
 
 
-module Cutset = Cutset.Make (Llg)
 
 (** Split a node in two smaller nodes:
     One with all the phi, the other will all the instructions.
@@ -158,6 +157,8 @@ let break_list g l =
   List.fold_left break_node g l
 
 (*
+module Cutset = Cutset.Make (Llg)
+
 exception Not_reducible of t
 
 (** Retrieve the minimal vertex cut set of a graph,
