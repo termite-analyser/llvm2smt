@@ -231,8 +231,13 @@ module Init (ZZ3 : ZZ3_sigs.S) (SMTg : module type of Smt_graph.Make(ZZ3))= stru
       | Select | VAArg | ExtractElement | InsertElement
       | ShuffleVector | ExtractValue | InsertValue | Fence
       | AtomicCmpXchg | AtomicRMW | Resume | LandingPad
-      | Invalid2 ->
+      | Invalid2 -> begin
+          (* Create a variable (it might be used in pagai's invariants)
+             but don't return any expression. *)
+          let (Ex typ) = getTyp llv in
+          let _e = getValueExpr typ llv in
           None
+        end
 
       (* Do something here *)
       | PHI -> Some (phi2smt llv)
