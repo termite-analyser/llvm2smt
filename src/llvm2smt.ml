@@ -13,12 +13,12 @@ let () =
     | Not_implemented llv -> Some (sprint_exn llv)
     | _ -> None)
 
-exception Variable_not_found of bool * llvalue
+exception Variable_not_found of (bool * llvalue)
 let sprint_exn_var (primed, llv) =
   Printf.sprintf "Could not find the value %s with primed: %B\n%!"
     (value_name llv) primed
 
-exception Block_not_found of bool * llbasicblock
+exception Block_not_found of (bool * llbasicblock)
 let sprint_exn_block (primed, llb) =
   Printf.sprintf "Could not find the following block with primed: %B.\n%s%!"
     primed (value_name @@ value_of_block llb)

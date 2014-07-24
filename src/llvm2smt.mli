@@ -11,10 +11,10 @@
 exception Not_implemented of Llvm.llvalue
 val sprint_exn : Llvm.llvalue -> string
 
-exception Variable_not_found of bool * Llvm.llvalue
+exception Variable_not_found of (bool * Llvm.llvalue)
 val sprint_exn_var : bool * Llvm.llvalue -> string
 
-exception Block_not_found of bool * Llvm.llbasicblock
+exception Block_not_found of (bool * Llvm.llbasicblock)
 val sprint_exn_block : bool * Llvm.llbasicblock -> string
 
 module Init
