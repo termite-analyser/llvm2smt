@@ -140,8 +140,17 @@ let break_node g ({ block ; phi ; instr } as node) =
   |> flip Llg.add_vertex node_instr
 
   (* And then we add back the edges, slightly modified. *)
-  |> flip (List.fold_left (fun g (src,l,_) -> Llg.add_edge_e g (src,l,node_phi))) in_e
-  |> flip (List.fold_left (fun g (_,l,dst) -> Llg.add_edge_e g (node_instr,l,dst))) out_e
+  (* We take care of handling the case of a self-loop. *)
+  |> fun g -> List.fold_left (fun g (src,l,_) ->
+      if V.equal src node
+      then Llg.add_edge_e g (node_instr,l,node_phi)
+      else Llg.add_edge_e g (src,l,node_phi)
+    ) g in_e
+  |> fun g -> List.fold_left (fun g (_,l,dst) ->
+      if V.equal dst node
+      then Llg.add_edge_e g (node_instr,l,node_phi)
+      else Llg.add_edge_e g (node_instr,l,dst)
+    ) g out_e
 
 
 let basicblocks_to_vertices g control_points =
