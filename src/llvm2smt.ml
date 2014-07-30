@@ -126,6 +126,9 @@ module Init (ZZ3 : ZZ3_sigs.S) (SMTg : module type of Smt_graph.Make(ZZ3))= stru
       | Int, ConstantInt ->
           let value = int64_of_const llv in
           T.int (Z.of_int64 @@ Option.get value)
+      | Bool, ConstantInt ->
+          let value = int64_of_const llv in
+          T.bool (0L <> Option.get value)
 
       (* Less easy constants *)
       | _, (ConstantAggregateZero
