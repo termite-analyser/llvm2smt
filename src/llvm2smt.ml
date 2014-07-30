@@ -213,7 +213,7 @@ module Init (ZZ3 : ZZ3_sigs.S) (SMTg : module type of Smt_graph.Make(ZZ3))= stru
     let free_var =
       T.symbol @@ Symbol.declare typ (make_name "phi_else") in
     let aux (llv, src) formula =
-      let e_llv = getVar ~name:"phi" typ llv in
+      let e_llv = getValueExpr typ llv in
       let e_edge = getEdgeVar ~src ~dst in
       T.(ite e_edge e_llv formula)
     in
@@ -243,11 +243,11 @@ module Init (ZZ3 : ZZ3_sigs.S) (SMTg : module type of Smt_graph.Make(ZZ3))= stru
       | PHI -> Some (phi2smt llv)
       | Br ->
           let current_block = instr_parent llv in
-          let e_curr = getBlockVar current_block in
+          let b_curr = getBlockVar current_block in
           if num_operands llv = 1 then begin
             let succ_block = block_of_value @@ operand llv 0 in
             let edge = getEdgeVar ~src:current_block ~dst:succ_block in
-            Some T.(e_curr = edge)
+            Some T.(b_curr = edge)
           end
           else begin
             let cond = getVar Bool @@ operand llv 0 in
@@ -260,7 +260,7 @@ module Init (ZZ3 : ZZ3_sigs.S) (SMTg : module type of Smt_graph.Make(ZZ3))= stru
             let succ_block2 = block_of_value @@ operand llv 1 in
             let edge2 = getEdgeVar ~src:current_block ~dst:succ_block2 in
 
-            Some T.(ite cond (e_curr = edge1) (e_curr = edge2))
+            Some T.(edge1 = (cond && b_curr) && edge2 = (not cond && b_curr))
           end
       | Invoke
       | ZExt
