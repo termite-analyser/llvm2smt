@@ -62,7 +62,9 @@ module Init (ZZ3 : ZZ3_sigs.S) (SMTg : module type of Smt_graph.Make(ZZ3))= stru
   let get_var primed llv =
     try
       let e = Hashtbl.find env (llv,primed) in
-      ZZ3.(T.symbol (Symbol.trustme Num e))
+       (** Fix z3's retardedness by preemptively upcasting to a real. *)
+      let e' = Z3.Arithmetic.Integer.mk_int2real ZZ3.ctx e in
+      ZZ3.(T.symbol (Symbol.trustme Num e'))
     with Not_found -> raise @@ Variable_not_found (primed, llv)
 
 
