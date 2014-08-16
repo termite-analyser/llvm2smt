@@ -164,19 +164,3 @@ let basicblocks_to_vertices g control_points =
 
 let break_list g l =
   List.fold_left break_node g l
-
-(*
-module Cutset = Cutset.Make (Llg)
-
-exception Not_reducible of t
-
-(** Retrieve the minimal vertex cut set of a graph,
-    and apply {!break_node} on each of these vertexes.
-*)
-let break_scc g start =
-  match Cutset.min_cutset g start with
-    | None -> raise (Not_reducible g)
-    | Some l ->
-        let control_points = List.map (fun x -> x.block) l in
-        control_points, break_list g l
-*)

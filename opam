@@ -13,7 +13,7 @@ remove: [
 depends: [
   "ocamlfind"
   "llvm"
-  "z3"
+  "z3overlay"
   ## OASIS is not required in released version
   "oasis" {>= "0.4.4"}
 ]
