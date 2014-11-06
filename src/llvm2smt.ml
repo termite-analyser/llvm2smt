@@ -236,7 +236,7 @@ module Init (ZZ3 : ZZ3_sigs.S) (SMTg : module type of Smt_graph.Make(ZZ3))= stru
       | Select | VAArg | ExtractElement | InsertElement
       | ShuffleVector | ExtractValue | InsertValue | Fence
       | AtomicCmpXchg | AtomicRMW | Resume | LandingPad
-      | Invalid2 -> begin
+      | Invalid2 | Invoke -> begin
           (* Create a variable (it might be used in pagai's invariants)
              but don't return any expression. *)
           let (Ex typ) = getTyp llv in
@@ -267,12 +267,11 @@ module Init (ZZ3 : ZZ3_sigs.S) (SMTg : module type of Smt_graph.Make(ZZ3))= stru
 
             Some T.(edge1 = (cond && b_curr) && edge2 = (not cond && b_curr))
           end
-      | Invoke
-      | ZExt
-      | Trunc
-        -> raise @@ Not_implemented llv
-
-
+      (* Int Extension/Truncature. We don't check the size of ints atm. *)
+      | ZExt | Trunc ->
+          let e = getValueExpr Int llv in
+          let operand = getValueExpr Int @@ operand llv 0 in
+          Some T.(e = operand)
       (* Float/Int casts *)
       | FPToUI | FPToSI ->
           let e = getValueExpr Int llv in
