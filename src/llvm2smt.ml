@@ -132,13 +132,14 @@ module Init (ZZ3 : ZZ3_sigs.S) (SMTg : module type of Smt_graph.Make(ZZ3))= stru
           let value = int64_of_const llv in
           T.bool (0L <> Option.get value)
 
+      | Int, ConstantPointerNull -> T.int 0
+
       (* Less easy constants *)
       | _, (ConstantAggregateZero
            | ConstantArray
            | ConstantDataArray
            | ConstantDataVector
            | ConstantExpr
-           | ConstantPointerNull
            | ConstantStruct
            | ConstantVector)
         -> raise @@ Not_implemented llv
