@@ -288,7 +288,7 @@ module Init (ZZ3 : ZZ3_sigs.S) (SMTg : module type of Smt_graph.Make(ZZ3))= stru
       | FAdd        -> binop llv Real T.( + )
       | Sub         -> binop llv Int  T.( - )
       | FSub        -> binop llv Real T.( - )
-      | Mul         -> binop llv Int  T.( - )
+      | Mul         -> binop llv Int  T.( * )
       | FMul        -> binop llv Real T.( * )
       | UDiv | SDiv -> binop llv Int  T.( / )
       | FDiv        -> binop llv Real T.( / )
