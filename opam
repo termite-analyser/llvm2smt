@@ -1,6 +1,6 @@
 opam-version: "1"
 name: "llvm2smt"
-version: "0.1"
+version: "dev"
 maintainer: "Gabriel Radanne <gabriel.radanne@pps.univ-paris-diderot.fr>"
 authors: "Gabriel Radanne <gabriel.radanne@pps.univ-paris-diderot.fr>"
 build: [
@@ -12,7 +12,7 @@ remove: ["ocamlfind" "remove" "llvm2smt"]
 depends: [
   "ocamlfind"
   "llvm"
-  "z3overlay"
+  "Z3overlay"
   ## OASIS is not required in released version
   "oasis" {>= "0.4.4"}
 ]
