@@ -1,9 +1,7 @@
-B _build
-B _build/src
-S src
+B _build/*
+S src/*
 
 PKG llvm
 PKG Z3
 PKG Z3overlay
-PKG batteries
 PKG ocamlgraph
