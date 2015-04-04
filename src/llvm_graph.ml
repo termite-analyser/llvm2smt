@@ -162,5 +162,27 @@ let basicblocks_to_vertices g control_points =
   in
   l
 
-let break_list g l =
+let break_by_list g l =
   List.fold_left break_node g l
+
+
+module Cutset = Mincut.Make (Llg)
+module Choose = Oper.Choose (Llg)
+
+exception Not_reducible of t
+
+(** Retrieve the minimal vertex cut set of a graph,
+    and apply {!break_node} on each of these vertexes.
+*)
+let break_graph ?start g =
+  let start = match start with
+    | None -> Choose.choose_vertex g
+    | Some n -> n
+  in
+  try
+    let l = Cutset.min_cutset g start in
+    let control_points = List.map (fun x -> x.block) l in
+    control_points, break_by_list g l
+  with
+    | Invalid_argument "Graph.Mincut: graph not reducible" ->
+      raise (Not_reducible g)

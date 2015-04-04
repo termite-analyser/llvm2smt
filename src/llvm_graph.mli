@@ -36,6 +36,9 @@ val has_successor : Llvm.llbasicblock -> bool
 (** Return the list of predecessors (and the associated user) of a block. *)
 val predecessors : Llvm.llbasicblock -> (Llvm.llbasicblock * Llvm.lluse) list
 
+(** Get the vertices associated to some basicblocks. *)
+val basicblocks_to_vertices : t -> Llvm.llbasicblock list -> vertex list
+
 (** {2 Dot export} *)
 
 (** Pretty print to dot graphviz format.*)
@@ -47,26 +50,23 @@ end
 
 (** {2 Cycle breaking} *)
 
-(** Get the vertices associated to some basicblocks. *)
-val basicblocks_to_vertices : t -> Llvm.llbasicblock list -> vertex list
-
-(** Break the node of a graph in two parts :
-    - A phi node which contains only the phis and receives the input edges.
-    - An instruction node which contains only the instruction and emit the output edges.
-*)
-val break_list : t -> vertex list -> t
-
-
-(* This code use a custom version of ocamlgraph with Shamir's algorithm.
-   See https://github.com/Drup/ocamlgraph/blob/cutset/src/cutset.mli
-*)
-(*
 exception Not_reducible of t
 
 (** Break all the cycle in a graph, effectively returning a DAG.
     Also returns the list of broken basicblocks.
 
+    Each broken node is separated in two parts:
+    - A phi node which contains only the phis and receives the input edges.
+    - An instruction node which contains only the instruction and emit the output edges.
+
+    This implementation breaks the minimal amount of block possible.
+
     A graph must be reducible for the algorithm to apply (which should be the case for all llvm's graphs) and the function will raise {! Not_reducible} otherwise.
 *)
-val break_scc : t -> vertex -> Llvm.llbasicblock list * t
+val break_graph : ?start:vertex -> t -> Llvm.llbasicblock list * t
+
+(** Similar to {!break_graph}, but allows the user to provide the list of node to be broken.
+
+    @raise Invalid_argument if one of the node is not in the graph.
 *)
+val break_by_list : t -> vertex list -> t
