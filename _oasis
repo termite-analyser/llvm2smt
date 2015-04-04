@@ -2,7 +2,7 @@ OASISFormat: 0.4
 Name:        llvm2smt
 Version:     0.1
 Synopsis:    Transform llvm control flow graph into smt formulas
-Authors:     Gabriel Radanne
+Authors:     Gabriel Radanne <drupyog@zoho.com>
 License:     LGPL with Ocaml linking exception
 Plugins:     META (0.3), DevFiles (0.3)
 
@@ -35,3 +35,17 @@ Executable read_and_dot
   MainIs: read_and_dot.ml
   BuildDepends: llvm2smt, llvm.bitreader, llvm.scalar_opts
   CompiledObject: best
+
+Test example_dot
+  Command:
+    clang -c -emit-llvm -o example.bc ../tests/example.c
+    $read_and_dot example.bc example.dot example.break.dot example.smt.dot
+  TestTools: read_and_dot
+  WorkingDirectory: _build
+
+Test nested_loop_dot
+  Command:
+    clang -c -emit-llvm -o nested_loop.bc ../tests/nested_loop.c
+    $read_and_dot nested_loop.bc nested_loop.dot nested_loop.break.dot nested_loop.smt.dot
+  TestTools: read_and_dot
+  WorkingDirectory: _build
