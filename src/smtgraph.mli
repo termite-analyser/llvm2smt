@@ -5,7 +5,7 @@
     The implementation is functorized to hide Z3's context. Here is the typical way to use this module :
     {[
       module ZZ3 = ZZ3.Make (struct let ctx = Z3.mk_context [] end)
-      module Smtg = Smt_graph.Make (ZZ3)
+      module Smtg = Smtgraph.Make (ZZ3)
     ]}
 *)
 
@@ -18,8 +18,8 @@ module Make (ZZ3 : ZZ3_sigs.S) : sig
   val get_clauses : V.t -> ZZ3.zbool ZZ3.term list
 
   val from_llvm :
-    (Llvm_graph.vertex -> ZZ3.zbool ZZ3.term list) ->
-    Llvm_graph.vertex -> vertex
+    (Llvmcfg.vertex -> ZZ3.zbool ZZ3.term list) ->
+    Llvmcfg.vertex -> vertex
 
   (** {2 Dot export} *)
 

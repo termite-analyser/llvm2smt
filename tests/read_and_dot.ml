@@ -1,8 +1,8 @@
 open Llvm
-open Llvm_graph
+open Llvmcfg
 
 module ZZ3 = ZZ3.Make (struct let ctx = Z3.mk_context [] end)
-module SMTg = Smt_graph.Make (ZZ3)
+module SMTg = Smtgraph.Make (ZZ3)
 module Llvm2Smt = Llvm2smt.Init (ZZ3) (SMTg)
 open Llvm2Smt
 

@@ -1,8 +1,7 @@
 open Utils
-open ZZ3
 open Llvm
 
-module Llg = Llvm_graph
+module Llg = Llvmcfg
 
 exception Not_implemented of llvalue
 let sprint_exn llv =
@@ -27,7 +26,7 @@ let sprint_exn_block (primed, llb) =
 module H = Hashtbl.Make (Llg.V)
 
 
-module Init (ZZ3 : ZZ3_sigs.S) (SMTg : module type of Smt_graph.Make(ZZ3))= struct
+module Init (ZZ3 : ZZ3_sigs.S) (SMTg : module type of Smtgraph.Make(ZZ3))= struct
 
   open ZZ3
 

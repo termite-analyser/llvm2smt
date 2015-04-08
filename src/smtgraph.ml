@@ -25,7 +25,7 @@ module Make (ZZ3 : ZZ3_sigs.S) = struct
   let get_clauses v = v.formulas
 
   let from_llvm f x =
-    { id = x.Llvm_graph.id ; formulas = f x }
+    { id = x.Llvmcfg.id ; formulas = f x }
 
   (** Graphviz is cool. *)
   module Dot = Graphviz.Dot (struct

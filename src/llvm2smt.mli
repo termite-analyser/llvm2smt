@@ -3,7 +3,7 @@
     The implementation is functorized to hide Z3's context. Here is the typical way to use this module :
     {[
       module ZZ3 = ZZ3.Make (struct let ctx = Z3.mk_context [] end)
-      module Smtg = Smt_graph.Make (ZZ3)
+      module Smtg = Smtgraph.Make (ZZ3)
       module L2S = Llvm2smt.Init (ZZ3) (Smtg)
     ]}
 *)
@@ -19,7 +19,7 @@ val sprint_exn_block : bool * Llvm.llbasicblock -> string
 
 module Init
     (ZZ3 : ZZ3_sigs.S)
-    (SMTg : module type of Smt_graph.Make(ZZ3))
+    (SMTg : module type of Smtgraph.Make(ZZ3))
   : sig
 
     (** Environment mapping llvm values (primed, or not) to smt values.
@@ -32,6 +32,6 @@ module Init
     val get_block : bool -> Llvm.llbasicblock -> [> ZZ3.zbool ] ZZ3.term
 
     (** Transform an Llvm graph into a formula graph, filling {! env} on the way. *)
-    val llvm2smt : Llvm.llvalue -> Llvm.llbasicblock list -> Llvm_graph.t -> SMTg.t
+    val llvm2smt : Llvm.llvalue -> Llvm.llbasicblock list -> Llvmcfg.t -> SMTg.t
 
   end
