@@ -18,7 +18,10 @@ let () =
   Llvm_scalar_opts.add_memory_to_register_promotion pass ;
   ignore @@ PassManager.run_module m pass ;
 
-  let Before llf = function_begin m in
+  let llf = match function_begin m with
+    | At_end _ -> Printf.eprintf "There is no function!\n%!" ; exit 1
+    | Before v -> v
+  in
   let llb2node, llg = of_llfunction llf in
 
   let chout = open_out Sys.argv.(2) in
