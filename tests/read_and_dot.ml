@@ -54,5 +54,5 @@ let () =
   close_out chout ;
 
   (* Finally, print the formula. *)
-  let smt = (SMTg.to_smt smtg : [> ZZ3.zbool ] ZZ3.term :> Z3.Expr.expr) in
-  print_endline @@ Z3.Expr.to_string smt ;
+  let smt = SMTg.to_smt smtg in
+  print_endline @@ ZZ3.T.to_string smt ;
