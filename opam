@@ -1,8 +1,14 @@
-opam-version: "1"
+opam-version: "1.2"
 name: "llvm2smt"
 version: "dev"
-maintainer: "Gabriel Radanne <gabriel.radanne@pps.univ-paris-diderot.fr>"
-authors: "Gabriel Radanne <gabriel.radanne@pps.univ-paris-diderot.fr>"
+maintainer: "Gabriel Radanne <drupyog@zoho.com>"
+authors: "Gabriel Radanne <drupyog@zoho.com>"
+license: "LGPL"
+homepage: "https://github.com/Drup/llvm2smt"
+bug-reports: "https://github.com/Drup/llvm2smt/issues"
+dev-repo: "https://github.com/Drup/llvm2smt.git"
+
+tags: ["llvm" "smt" "Z3"]
 build: [
   ["./configure" "--prefix" prefix]
   [make]
@@ -10,10 +16,11 @@ build: [
 ]
 remove: ["ocamlfind" "remove" "llvm2smt"]
 depends: [
-  "ocamlfind"
+  "ocamlfind" {build}
   "llvm"
   "Z3overlay"
   "ocamlgraph" {>= "1.8.6"}
+  "llvmgraph" {>= "0.2"}
   ## OASIS is not required in released version
-  "oasis" {>= "0.4.4"}
+  "oasis" {build & >= "0.4.4"}
 ]
