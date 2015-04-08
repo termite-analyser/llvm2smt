@@ -3,7 +3,7 @@
 Encode an llvm control flow graph into an smt formula, producing a mapping from llv variables to smt variables on the way.
 ℕ is used to represent integers and ℚ to represent floating point numbers. Bit by bit operations are not supported at the moment, as well as memory accesses and exceptions.
 
-Dependecies are:
+Dependencies are:
 - ocamlgraph
 - Microsoft's Z3 and the ml-ng bindings.
 - [Z3overlay](https://github.com/Drup/ocaml-z3)
