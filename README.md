@@ -21,11 +21,11 @@ let smt =
 
 This proceeds by the following steps. We will illustrate with the algorithm applied on the example [`example.c`](tests/example.c):
 - Builds a persistent ocamlgraph representation of the control flow graph using [llvmgraph](https://github.com/Drup/llvmgraph)'s Map functor.
-  ![https://i.imgur.com/ijRiaE5.png](Llvm control flow graph)
+  ![Llvm control flow graph](https://i.imgur.com/ijRiaE5.png)
 - Breaks the cycle in this graph by computing a minimal vertex cutset of it and breaking each selected basicblock into a block with phi nodes and a block with the rest. These node corresponds to the important control points of the program (loop headers, for example).
-  ![https://i.imgur.com/ptaYaG0.png](Llvm broken control flow graph)
+  ![Llvm broken control flow graph](https://i.imgur.com/ptaYaG0.png)
 - Build a graph of the same shape containing lists of clauses. Each clauses is build by encoding an llvm instruction into an smt term. Note that the encoding differanciate variables in vertexes that were splited and contains only phi node. We call these variables "primed" as we want to distinguish them from their counterpart in the other node.
-  ![https://i.imgur.com/lo3roz9.png](Smt graph)
+  ![Smt graph](https://i.imgur.com/lo3roz9.png)
 - The final formula is produced by taking the and of all the clauses of all the basic block.
 ```
 (and (= _28 (< .0_20 y_2))
