@@ -40,35 +40,7 @@ end
 module Llg = Persistent.Digraph.ConcreteBidirectionalLabeled (V_) (E_)
 include Llg
 
-
-let is_terminator llv =
-  let open Llvm.ValueKind in
-  let open Llvm.Opcode in
-  match Llvm.classify_value llv with
-    | Instruction (Br | IndirectBr | Invoke | Resume | Ret | Switch | Unreachable)
-        -> true
-    | _ -> false
-
-let has_successor llb =
-  match Llvm.block_terminator llb with
-    | Some lli -> begin
-        let open Llvm.Opcode in
-        match Llvm.instr_opcode lli with
-          | Ret | Unreachable -> false
-          | _ -> true
-      end
-    | _ -> false
-
-let predecessors llb =
-  let llv = Llvm.value_of_block llb in
-  let aux l llu =
-    let lli = Llvm.user llu in
-    let llb' = Llvm.instr_parent lli in
-    if is_terminator lli
-    then (llb', llu) :: l
-    else l
-  in
-  Llvm.fold_left_uses aux [] llv
+module B = Llvmgraph.Map(Builder.P(Llg))
 
 (** Create the graph representing an llvm function.
 
@@ -76,21 +48,10 @@ let predecessors llb =
     an llvm basic bloc to a node in the graph.
 *)
 let of_llfunction llfun =
-  let h = Hashtbl.create 128 in
-  let f_add_vertex g llb =
-    let v = llblock2vertex llb in
-    Hashtbl.add h llb v ;
-    add_vertex g v
-  in
-  let g = Llvm.fold_left_blocks f_add_vertex empty llfun in
-  let f_add_edges node g =
-    let pred = predecessors node.block in
-    let aux g (llb', llu) =
-      add_edge_e g (Hashtbl.find h llb', Some llu, node)
-    in
-    List.fold_left aux g pred
-  in
-  Hashtbl.find h, fold_vertex f_add_edges g g
+  B.map
+    ~vertex:llblock2vertex
+    ~label:(fun x -> Some (Llvmgraph.G.E.label x))
+    llfun
 
 
 (** Graphviz is cool. *)

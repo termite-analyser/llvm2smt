@@ -5,7 +5,7 @@
     The graph is persistent so that it's possible to transform the representation to perform analysis without modifying Llvm's IR.
 *)
 
-type vertex_ = {
+type vertex_ = private {
   id : int ;
   block : Llvm.llbasicblock ;
   phi : Llvm.llvalue list ;
@@ -17,6 +17,11 @@ include Graph.Sig.P
    and type V.label = vertex_
    and type E.label = Llvm.lluse option
 
+val vertex :
+  block:Llvm.llbasicblock ->
+  phi:Llvm.llvalue list ->
+  instr:Llvm.llvalue list -> V.t
+
 (** Create the graph representing an llvm function.
 
     Returns a couple [(f, g)] where [g] is the graph and [f] associate
@@ -26,15 +31,6 @@ val of_llfunction : Llvm.llvalue -> (Llvm.llbasicblock -> vertex) * t
 
 
 (** {2 Misc functions} *)
-
-(** Return true iff a instruction is a terminator. *)
-val is_terminator : Llvm.llvalue -> bool
-
-(** Return true iff a block has a successor. *)
-val has_successor : Llvm.llbasicblock -> bool
-
-(** Return the list of predecessors (and the associated user) of a block. *)
-val predecessors : Llvm.llbasicblock -> (Llvm.llbasicblock * Llvm.lluse) list
 
 (** Get the vertices associated to some basicblocks. *)
 val basicblocks_to_vertices : t -> Llvm.llbasicblock list -> vertex list
