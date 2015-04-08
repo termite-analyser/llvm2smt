@@ -3,6 +3,13 @@
 Encode an llvm control flow graph into an smt formula, producing a mapping from llv variables to smt variables on the way.
 ℕ is used to represent integers and ℚ to represent floating point numbers. Bit by bit operations are not supported at the moment, as well as memory accesses and exceptions.
 
+Dependecies are:
+- ocamlgraph
+- Microsoft's Z3 and the ml-ng bindings.
+- [Z3overlay](https://github.com/Drup/ocaml-z3)
+- llvm >= 3.6
+- [llvmgraph](https://github.com/Drup/llvmgraph) >= 0.2
+
 You can see an example in the file [`read_and_dot.ml`](tests/read_and_dot.ml). The library is used like that:
 
 ```ocaml
