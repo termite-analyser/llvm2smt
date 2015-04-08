@@ -11,16 +11,15 @@
 
 module Make (ZZ3 : ZZ3_sigs.S) : sig
 
-  type vertex_ = {
-    id : int ;
-    formulas : ZZ3.zbool ZZ3.term list ;
-  }
 
   include Graph.Sig.P
-    with type V.t = vertex_
-     and type V.label = vertex_
-     and type E.label = unit
+     with type E.label = unit
 
+  val get_clauses : V.t -> ZZ3.zbool ZZ3.term list
+
+  val from_llvm :
+    (Llvm_graph.vertex -> ZZ3.zbool ZZ3.term list) ->
+    Llvm_graph.vertex -> vertex
 
   (** {2 Dot export} *)
 

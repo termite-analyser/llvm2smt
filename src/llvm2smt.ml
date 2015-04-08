@@ -346,7 +346,7 @@ module Init (ZZ3 : ZZ3_sigs.S) (SMTg : module type of Smt_graph.Make(ZZ3))= stru
       llg ;
 
     (* conversion function *)
-    let llnode2smtnode ({Llg. id ; block ; phi ; instr } as node) =
+    let llnode2formula ({Llg. id ; block ; phi ; instr } as node) =
       let primed = is_primed_block node in
       let in_formula =
         let in_ =
@@ -361,8 +361,9 @@ module Init (ZZ3 : ZZ3_sigs.S) (SMTg : module type of Smt_graph.Make(ZZ3))= stru
         in_formula @
           List.map (phi2smt ~primed) phi @
           concat_optlist @@ List.map instr2smt instr in
-      {SMTg. id ; formulas }
+      formulas
     in
+    let llnode2smtnode = SMTg.from_llvm llnode2formula in
     let addnodes llnode g =
       let smtnode = llnode2smtnode llnode in
       H.add vertices llnode smtnode ;

@@ -26,9 +26,9 @@ let llblock2vertex llb =
 
 module V_ = struct
   type t = vertex_
-  let compare = compare
-  let hash = Hashtbl.hash
-  let equal = (=)
+  let compare x y = compare x.id y.id
+  let hash x = Hashtbl.hash x.id
+  let equal x y = x.id = y.id
 end
 
 module E_ = struct

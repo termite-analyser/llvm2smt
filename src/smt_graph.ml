@@ -9,18 +9,23 @@ module Make (ZZ3 : ZZ3_sigs.S) = struct
     formulas : zbool term list ;
   }
 
-  module SMTg = Persistent.Digraph.ConcreteBidirectional
-      (struct
-        type t = vertex_
-        let compare = compare
-        let hash = Hashtbl.hash
-        let equal = (==)
-      end)
+  module V_ = struct
+    type t = vertex_
+    let hash = Hashtbl.hash
+    let equal x y = x.id = y.id
+    let compare x y = compare x.id y.id
+  end
+
+  module SMTg = Persistent.Digraph.ConcreteBidirectional (V_)
   include SMTg
 
   let to_smt g =
     T.and_ (SMTg.fold_vertex (fun x l -> T.and_ x.formulas :: l) g [])
 
+  let get_clauses v = v.formulas
+
+  let from_llvm f x =
+    { id = x.Llvm_graph.id ; formulas = f x }
 
   (** Graphviz is cool. *)
   module Dot = Graphviz.Dot (struct
