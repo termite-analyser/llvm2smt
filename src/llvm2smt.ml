@@ -122,7 +122,7 @@ module Init (ZZ3 : ZZ3_sigs.S) (SMTg : module type of Smtgraph.Make(ZZ3))= struc
     match typ, classify_value llv with
       (* Easy constants *)
       | Real, ConstantFP ->
-          let value = raise (Not_implemented llv) (* float_of_const llv *) in
+          let value = float_of_const llv in
           T.rat (Q.of_float @@ Option.get value)
       | Int, ConstantInt ->
           let value = int64_of_const llv in
@@ -249,24 +249,16 @@ module Init (ZZ3 : ZZ3_sigs.S) (SMTg : module type of Smtgraph.Make(ZZ3))= struc
       | Br ->
           let current_block = instr_parent llv in
           let b_curr = getBlockVar current_block in
-          if num_operands llv = 1 then begin
-            let succ_block = block_of_value @@ operand llv 0 in
-            let edge = getEdgeVar ~src:current_block ~dst:succ_block in
-            Some T.(b_curr = edge)
-          end
-          else begin
-            let cond = getVar Bool @@ operand llv 0 in
-
-            (* USE OF OPERAND 2 AND OPERAND 1 ARE NOT A TYPO.
-               It's reverted in llvm's representation. *)
-            let succ_block1 = block_of_value @@ operand llv 2 in
-            let edge1 = getEdgeVar ~src:current_block ~dst:succ_block1 in
-
-            let succ_block2 = block_of_value @@ operand llv 1 in
-            let edge2 = getEdgeVar ~src:current_block ~dst:succ_block2 in
-
-            Some T.(edge1 = (cond && b_curr) && edge2 = (not cond && b_curr))
-          end
+          Option.map (Llvm.get_branch llv) (function
+            | `Unconditional succ_block ->
+                let edge = getEdgeVar ~src:current_block ~dst:succ_block in
+                T.(b_curr = edge)
+            | `Conditional (cond_instr, succ_block1, succ_block2) ->
+                let cond = getVar Bool cond_instr in
+                let edge1 = getEdgeVar ~src:current_block ~dst:succ_block1 in
+                let edge2 = getEdgeVar ~src:current_block ~dst:succ_block2 in
+                T.(edge1 = (cond && b_curr) && edge2 = (not cond && b_curr))
+          )
       (* Int Extension/Truncature. We don't check the size of ints atm. *)
       | ZExt | Trunc ->
           let e = getValueExpr Int llv in
@@ -313,18 +305,18 @@ module Init (ZZ3 : ZZ3_sigs.S) (SMTg : module type of Smtgraph.Make(ZZ3))= struc
           )
       | FCmp ->
           let open Fcmp in
-          Option.bind (raise @@ Not_implemented llv (*fcmp_predicate llv *)) (function
+          Option.bind (fcmp_predicate llv) (function
             | False -> Some T.false_
             | True -> Some T.true_
-            | Oeq | Ueq -> comp llv Int T.(=)
-            | One | Une -> comp llv Int T.(<>)
-            | Ogt | Ugt -> comp llv Int T.(>)
-            | Oge | Uge -> comp llv Int T.(>=)
-            | Olt | Ult -> comp llv Int T.(<)
-            | Ole | Ule -> comp llv Int T.(<=)
+            | Oeq | Ueq -> comp llv Real T.(=)
+            | One | Une -> comp llv Real T.(<>)
+            | Ogt | Ugt -> comp llv Real T.(>)
+            | Oge | Uge -> comp llv Real T.(>=)
+            | Olt | Ult -> comp llv Real T.(<)
+            | Ole | Ule -> comp llv Real T.(<=)
             | Ord | Uno ->
                 let b = T.symbol @@ Symbol.declare Bool @@ make_name @@ value_name llv in
-                let e = getValueExpr Int llv in
+                let e = getValueExpr Real llv in
                 Some T.(e = b)
           )
 

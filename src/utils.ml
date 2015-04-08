@@ -12,6 +12,9 @@ module Option = struct
     | None -> None
     | Some x -> f x
 
+  let map x f = match x with
+    | None -> None
+    | Some x -> Some (f x)
 end
 
 (* Not tail rec *)
