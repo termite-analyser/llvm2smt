@@ -58,7 +58,7 @@ module Init (ZZ3 : ZZ3_sigs.S) (SMTg : module type of Smtgraph.Make(ZZ3))= struc
   (** Some access only function, to be exposed in the interface *)
 
 
-  let get_var primed llv =
+  let get_var ~primed llv =
     try
       let e = Hashtbl.find env (llv,primed) in
        (** Fix z3's retardedness by preemptively upcasting to a real. *)
@@ -67,7 +67,7 @@ module Init (ZZ3 : ZZ3_sigs.S) (SMTg : module type of Smtgraph.Make(ZZ3))= struc
     with Not_found -> raise @@ Variable_not_found (primed, llv)
 
 
-  let get_block primed llb =
+  let get_block ~primed llb =
     try
       let e = Hashtbl.find env (value_of_block llb,primed) in
       ZZ3.(T.symbol (Symbol.trustme Bool e))

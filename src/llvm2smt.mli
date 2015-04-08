@@ -41,9 +41,9 @@ module Init
     *)
     val env : (Llvm.llvalue * bool, Z3.Expr.expr) Hashtbl.t
 
-    val get_var : bool -> Llvm.llvalue -> [> ZZ3.znum ] ZZ3.term
+    val get_var : primed:bool -> Llvm.llvalue -> [> ZZ3.znum ] ZZ3.term
 
-    val get_block : bool -> Llvm.llbasicblock -> [> ZZ3.zbool ] ZZ3.term
+    val get_block : primed:bool -> Llvm.llbasicblock -> [> ZZ3.zbool ] ZZ3.term
 
     (** Transform an Llvm graph into a formula graph, filling {! env} on the way. *)
     val llvm2smt : Llvm.llvalue -> Llvm.llbasicblock list -> Llvmcfg.t -> SMTg.t
