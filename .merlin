@@ -1,7 +1,8 @@
-B _build/*
-S src/*
+B _build/**
+S src/**
 
 PKG llvm
 PKG Z3
 PKG Z3overlay
 PKG ocamlgraph
+PKG llvmgraph
