@@ -6,7 +6,6 @@ Authors:     Gabriel Radanne <drupyog@zoho.com>
 License:     MIT
 Plugins:     META (0.3), DevFiles (0.3)
 
-AlphaFeatures: compiled_setup_ml, ocamlbuild_more_args
 BuildTools: ocamlbuild
 
 
@@ -18,6 +17,7 @@ Library llvm2smt
   BuildDepends: llvm, Z3overlay, ocamlgraph, llvmgraph
 
 
+AlphaFeatures: ocamlbuild_more_args
 Document "api"
   Title: API reference for Llvm_nts
   Type: ocamlbuild (0.3)
