@@ -1,0 +1,119 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+<link rel="Start" href="index.html">
+<link rel="previous" href="Llvm2smt.html">
+<link rel="next" href="Smtgraph.html">
+<link rel="Up" href="index.html">
+<link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of exceptions" rel=Appendix href="index_exceptions.html">
+<link title="Index of values" rel=Appendix href="index_values.html">
+<link title="Index of modules" rel=Appendix href="index_modules.html">
+<link title="Llvm2smt" rel="Chapter" href="Llvm2smt.html">
+<link title="Llvmcfg" rel="Chapter" href="Llvmcfg.html">
+<link title="Smtgraph" rel="Chapter" href="Smtgraph.html"><link title="Misc functions" rel="Section" href="#2_Miscfunctions">
+<link title="Dot export" rel="Section" href="#2_Dotexport">
+<link title="Cycle breaking" rel="Section" href="#2_Cyclebreaking">
+<title>Llvmcfg</title>
+</head>
+<body>
+<div class="navbar"><a class="pre" href="Llvm2smt.html" title="Llvm2smt">Previous</a>
+&nbsp;<a class="up" href="index.html" title="Index">Up</a>
+&nbsp;<a class="post" href="Smtgraph.html" title="Smtgraph">Next</a>
+</div>
+<h1>Module <a href="type_Llvmcfg.html">Llvmcfg</a></h1>
+
+<pre><span class="keyword">module</span> Llvmcfg: <code class="code"><span class="keyword">sig</span></code> <a href="Llvmcfg.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info module top">
+Ocamlgraph persistent overlay for llvm.
+<p>
+
+    This module allows to extract and manipulate a graph representing an llvm function with nodes representing the basicblocks.
+<p>
+
+    The graph is persistent so that it's possible to transform the representation to perform analysis without modifying Llvm's IR.<br>
+</div>
+<hr width="100%">
+
+<pre><code><span id="TYPEvertex_"><span class="keyword">type</span> <code class="type"></code>vertex_</span> = private {</code></pre><table class="typetable">
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTvertex_.id">id</span>&nbsp;: <code class="type">int</code>;</code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTvertex_.block">block</span>&nbsp;: <code class="type">Llvm.llbasicblock</code>;</code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTvertex_.phi">phi</span>&nbsp;: <code class="type">Llvm.llvalue list</code>;</code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTvertex_.instr">instr</span>&nbsp;: <code class="type">Llvm.llvalue list</code>;</code></td>
+
+</tr></table>
+}
+
+
+
+<pre><span class="keyword">include</span> Graph.Sig.P</pre>
+
+<pre><span id="VALvertex"><span class="keyword">val</span> vertex</span> : <code class="type">block:Llvm.llbasicblock -><br>       phi:Llvm.llvalue list -> instr:Llvm.llvalue list -> V.t</code></pre>
+<pre><span id="VALof_llfunction"><span class="keyword">val</span> of_llfunction</span> : <code class="type">Llvm.llvalue -> (Llvm.llbasicblock -> vertex) * t</code></pre><div class="info ">
+Create the graph representing an llvm function.
+<p>
+
+    Returns a couple <code class="code">(f, g)</code> where <code class="code">g</code> is the graph and <code class="code">f</code> associate
+    an llvm basic bloc to a node in the graph.<br>
+</div>
+<br>
+<h2 id="2_Miscfunctions">Misc functions</h2><br>
+
+<pre><span id="VALbasicblocks_to_vertices"><span class="keyword">val</span> basicblocks_to_vertices</span> : <code class="type">t -> Llvm.llbasicblock list -> vertex list</code></pre><div class="info ">
+Get the vertices associated to some basicblocks.<br>
+</div>
+<br>
+<h2 id="2_Dotexport">Dot export</h2><br>
+
+<pre><span class="keyword">module</span> <a href="Llvmcfg.Dot.html">Dot</a>: <code class="code"><span class="keyword">sig</span></code> <a href="Llvmcfg.Dot.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info">
+Pretty print to dot graphviz format.
+</div>
+<br>
+<h2 id="2_Cyclebreaking">Cycle breaking</h2><br>
+
+<pre><span id="EXCEPTIONNot_reducible"><span class="keyword">exception</span> Not_reducible</span> <span class="keyword">of</span> <code class="type">t</code></pre>
+
+<pre><span id="VALbreak_graph"><span class="keyword">val</span> break_graph</span> : <code class="type">?start:vertex -> t -> Llvm.llbasicblock list * t</code></pre><div class="info ">
+Break all the cycle in a graph, effectively returning a DAG.
+    Also returns the list of broken basicblocks.
+<p>
+
+    Each broken node is separated in two parts:<ul>
+<li>A phi node which contains only the phis and receives the input edges.</li>
+<li>An instruction node which contains only the instruction and emit the output edges.</li>
+</ul>
+
+    This implementation breaks the minimal amount of block possible.
+<p>
+
+    A graph must be reducible for the algorithm to apply (which should be the case for all llvm's graphs) and the function will raise <a href="Llvmcfg.html#EXCEPTIONNot_reducible"><code class="code"><span class="constructor">Llvmcfg</span>.<span class="constructor">Not_reducible</span></code></a> otherwise.<br>
+</div>
+
+<pre><span id="VALbreak_by_list"><span class="keyword">val</span> break_by_list</span> : <code class="type">t -> vertex list -> t</code></pre><div class="info ">
+Similar to <a href="Llvmcfg.html#VALbreak_graph"><code class="code"><span class="constructor">Llvmcfg</span>.break_graph</code></a>, but allows the user to provide the list of node to be broken.<br>
+<b>Raises</b> <code>Invalid_argument</code> if one of the node is not in the graph.<br>
+</div>
+</body></html>

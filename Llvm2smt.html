@@ -1,0 +1,65 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+<link rel="Start" href="index.html">
+<link rel="next" href="Llvmcfg.html">
+<link rel="Up" href="index.html">
+<link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of exceptions" rel=Appendix href="index_exceptions.html">
+<link title="Index of values" rel=Appendix href="index_values.html">
+<link title="Index of modules" rel=Appendix href="index_modules.html">
+<link title="Llvm2smt" rel="Chapter" href="Llvm2smt.html">
+<link title="Llvmcfg" rel="Chapter" href="Llvmcfg.html">
+<link title="Smtgraph" rel="Chapter" href="Smtgraph.html"><title>Llvm2smt</title>
+</head>
+<body>
+<div class="navbar">&nbsp;<a class="up" href="index.html" title="Index">Up</a>
+&nbsp;<a class="post" href="Llvmcfg.html" title="Llvmcfg">Next</a>
+</div>
+<h1>Module <a href="type_Llvm2smt.html">Llvm2smt</a></h1>
+
+<pre><span class="keyword">module</span> Llvm2smt: <code class="code"><span class="keyword">sig</span></code> <a href="Llvm2smt.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info module top">
+Transform an llvm graph into an smt formula.
+<p>
+
+    The implementation is functorized to hide Z3's context. Here is the typical way to use this module :
+    <pre class="codepre"><code class="code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">module</span>&nbsp;<span class="constructor">ZZ3</span>&nbsp;=&nbsp;<span class="constructor">ZZ3</span>.<span class="constructor">Make</span>&nbsp;(<span class="keyword">struct</span>&nbsp;<span class="keyword">let</span>&nbsp;ctx&nbsp;=&nbsp;<span class="constructor">Z3</span>.mk_context&nbsp;[]&nbsp;<span class="keyword">end</span>)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">module</span>&nbsp;<span class="constructor">Smtg</span>&nbsp;=&nbsp;<span class="constructor">Smtgraph</span>.<span class="constructor">Make</span>&nbsp;(<span class="constructor">ZZ3</span>)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">module</span>&nbsp;<span class="constructor">L2S</span>&nbsp;=&nbsp;<span class="constructor">Llvm2smt</span>.<span class="constructor">Init</span>&nbsp;(<span class="constructor">ZZ3</span>)&nbsp;(<span class="constructor">Smtg</span>)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</code></pre>
+<p>
+
+    Then, assuming you have <code class="code">llf</code> an llvm function:
+    <pre class="codepre"><code class="code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;smt&nbsp;=<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;llb2node,&nbsp;llg&nbsp;=&nbsp;<span class="constructor">Llvmcfg</span>.of_llfunction&nbsp;llf&nbsp;<span class="keyword">in</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;breakpoints,&nbsp;llg'&nbsp;=&nbsp;<span class="constructor">Llvmcfg</span>.break_graph&nbsp;llg&nbsp;<span class="keyword">in</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;smtg&nbsp;=&nbsp;<span class="constructor">L2S</span>.llvm2smt&nbsp;llf&nbsp;points&nbsp;llg'&nbsp;<span class="keyword">in</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">SMTg</span>.to_smt&nbsp;smtg<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</code></pre>
+<p>
+
+    Note that this functor *is* stateful. It will build up the environment <code class="code">env</code> as it translate functions which allows to find the smt variable from an llvm variable.<br>
+</div>
+<hr width="100%">
+
+<pre><span id="EXCEPTIONNot_implemented"><span class="keyword">exception</span> Not_implemented</span> <span class="keyword">of</span> <code class="type">Llvm.llvalue</code></pre>
+<div class="info ">
+Raised if an llvm instruction is not implemented.<br>
+</div>
+
+<pre><span id="VALsprint_exn"><span class="keyword">val</span> sprint_exn</span> : <code class="type">Llvm.llvalue -> string</code></pre>
+<pre><span id="EXCEPTIONVariable_not_found"><span class="keyword">exception</span> Variable_not_found</span> <span class="keyword">of</span> <code class="type">(bool * Llvm.llvalue)</code></pre>
+<div class="info ">
+Raised if an llvm variable is used in the control flow graph but doesn't exist.<br>
+</div>
+
+<pre><span id="VALsprint_exn_var"><span class="keyword">val</span> sprint_exn_var</span> : <code class="type">bool * Llvm.llvalue -> string</code></pre>
+<pre><span id="EXCEPTIONBlock_not_found"><span class="keyword">exception</span> Block_not_found</span> <span class="keyword">of</span> <code class="type">(bool * Llvm.llbasicblock)</code></pre>
+<div class="info ">
+Raised if an llvm basic bloc is used in the control flow graph but doesn't exist.<br>
+</div>
+
+<pre><span id="VALsprint_exn_block"><span class="keyword">val</span> sprint_exn_block</span> : <code class="type">bool * Llvm.llbasicblock -> string</code></pre>
+<pre><span class="keyword">module</span> <a href="Llvm2smt.Init.html">Init</a> <code class="code">(</code><code class="code"><span class="constructor">ZZ3</span></code><code class="code"> : </code><code class="type">ZZ3_sigs.S</code><code class="code">) </code> <code class="code">(</code><code class="code"><span class="constructor">SMTg</span></code><code class="code"> : </code><code class="type">module type of <a href="Smtgraph.Make.html">Smtgraph.Make</a>(ZZ3)</code><code class="code">) </code>: <code class="code"><span class="keyword">sig</span></code> <a href="Llvm2smt.Init.html">..</a> <code class="code"><span class="keyword">end</span></code></pre></body></html>
