@@ -4,9 +4,9 @@ version: "dev"
 maintainer: "Gabriel Radanne <drupyog@zoho.com>"
 authors: "Gabriel Radanne <drupyog@zoho.com>"
 license: "MIT"
-homepage: "https://github.com/Drup/llvm2smt"
-bug-reports: "https://github.com/Drup/llvm2smt/issues"
-dev-repo: "https://github.com/Drup/llvm2smt.git"
+homepage: "https://github.com/termite-analyser/llvm2smt"
+bug-reports: "https://github.com/termite-analyser/llvm2smt/issues"
+dev-repo: "https://github.com/termite-analyser/llvm2smt.git"
 
 tags: ["llvm" "smt" "Z3"]
 build: [
