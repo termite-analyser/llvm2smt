@@ -10,10 +10,10 @@ dev-repo: "https://github.com/termite-analyser/llvm2smt.git"
 
 tags: ["llvm" "smt" "Z3"]
 build: [
-  ["./configure" "--prefix" prefix]
-  [make]
-  [make "install"]
+  ["ocaml" "setup.ml" "-configure" "--prefix" prefix]
+  ["ocaml" "setup.ml" "-build"]
 ]
+install: ["ocaml" "setup.ml" "-install"]
 remove: ["ocamlfind" "remove" "llvm2smt"]
 depends: [
   "ocamlfind" {build}
