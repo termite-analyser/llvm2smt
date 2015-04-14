@@ -3,7 +3,7 @@ Name:        llvm2smt
 Version:     0.1
 Synopsis:    Transform llvm control flow graph into smt formulas
 Authors:     Gabriel Radanne <drupyog@zoho.com>
-License:     LGPL with Ocaml linking exception
+License:     MIT
 Plugins:     META (0.3), DevFiles (0.3)
 
 AlphaFeatures: compiled_setup_ml, ocamlbuild_more_args
