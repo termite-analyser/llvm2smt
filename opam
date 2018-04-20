@@ -7,7 +7,7 @@ license: "MIT"
 homepage: "https://github.com/termite-analyser/llvm2smt"
 bug-reports: "https://github.com/termite-analyser/llvm2smt/issues"
 dev-repo: "https://github.com/termite-analyser/llvm2smt.git"
-doc: "https://termite-analyser.github.io/llvm2smt/
+doc: "https://termite-analyser.github.io/llvm2smt/"
 
 tags: ["llvm" "smt" "Z3"]
 build: [
@@ -19,7 +19,7 @@ remove: ["ocamlfind" "remove" "llvm2smt"]
 depends: [
   "ocamlfind" {build}
   "llvm"
-  "Z3overlay"
+  "z3overlay"
   "ocamlgraph" {>= "1.8.6"}
   "llvmgraph" {>= "0.2"}
   ## OASIS is not required in released version
