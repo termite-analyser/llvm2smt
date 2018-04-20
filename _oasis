@@ -14,7 +14,7 @@ Library llvm2smt
   InternalModules: Utils
   Modules:
     Llvm2smt, Llvmcfg, Smtgraph
-  BuildDepends: llvm, Z3overlay, ocamlgraph, llvmgraph
+  BuildDepends: llvm, z3overlay, ocamlgraph, llvmgraph
 
 
 AlphaFeatures: ocamlbuild_more_args
