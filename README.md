@@ -5,7 +5,7 @@ Encode an llvm control flow graph into an smt formula, producing a mapping from 
 
 To install:
 ```
-opam pin add z3overlay https://github.com/termite-analyser/llvm2smt.git
+opam pin add llvm2smt https://github.com/termite-analyser/llvm2smt.git
 ```
 
 You can see an example in the file [`read_and_dot.ml`](tests/read_and_dot.ml). The library is used like that:
